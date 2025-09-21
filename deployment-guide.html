@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Deployment Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 300px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: #2c5364;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .card-body ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .card-body li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-body li:before {
+            content: "✓";
+            color: #2c5364;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .card-body li:last-child {
+            border-bottom: none;
+        }
+        
+        .error-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .error-header {
+            color: #e74c3c;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .error-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .error-info {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .error-solution {
+            flex: 1;
+            min-width: 300px;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .platforms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .platform {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            width: 250px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .platform h3 {
+            color: #2c5364;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #2c5364;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #203a43;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .card {
+                width: 100%;
+                max-width: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Website Deployment Guide</h1>
+            <p class="subtitle">Learn how to make your website live with this step-by-step guide</p>
+        </header>
+        
+        <div class="card-container">
+            <div class="card">
+                <div class="card-header">Preparation</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Test your website locally</li>
+                        <li>Check all links and functionality</li>
+                        <li>Optimize images and assets</li>
+                        <li>Minify CSS and JavaScript</li>
+                        <li>Ensure responsive design</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">Domain & Hosting</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Choose a domain name</li>
+                        <li>Select a hosting provider</li>
+                        <li>Configure DNS settings</li>
+                        <li>Set up SSL certificate</li>
+                        <li>Point domain to your host</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">Deployment</div>
+                <div class="card-body">
+                    <ul>
+                        <li>Upload your files to the server</li>
+                        <li>Set up databases if needed</li>
+                        <li>Configure server settings</li>
+                        <li>Test the live website</li>
+                        <li>Implement backup system</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="error-section">
+            <h2 class="error-header">Troubleshooting the 404 Error</h2>
+            <div class="error-content">
+                <div class="error-info">
+                    <h3>What does the error mean?</h3>
+                    <p>The 404 "Not Found" error indicates that the server couldn't find the requested resource. In your case, it's trying to locate <code>image.png</code> but cannot find it.</p>
+                    
+                    <h3>Common causes:</h3>
+                    <ul>
+                        <li>File doesn't exist at the specified path</li>
+                        <li>Incorrect file permissions</li>
+                        <li>Wrong file path in your code</li>
+                        <li>Case sensitivity issues (Image.png vs image.png)</li>
+                        <li>.htaccess misconfiguration (on Apache)</li>
+                    </ul>
+                </div>
+                
+                <div class="error-solution">
+                    <h3>How to fix it:</h3>
+                    <p>1. Check if the file exists on your server in the correct location.</p>
+                    <p>2. Verify the file path in your HTML/CSS code:</p>
+                    <div class="code-block">
+                        &lt;!-- Example --&gt;<br>
+                        &lt;img src="images/image.png" alt="Description"&gt;
+                    </div>
+                    <p>3. Ensure file permissions are set correctly (usually 644 for files).</p>
+                    <p>4. If using a framework, you may need to import the image properly.</p>
+                    <p>5. Clear your browser cache and restart the server if needed.</p>
+                </div>
+            </div>
+        </div>
+        
+        <h2 style="text-align: center; color: white; margin: 30px 0;">Popular Deployment Platforms</h2>
+        <div class="platforms">
+            <div class="platform">
+                <h3>Netlify</h3>
+                <p>Great for static sites</p>
+                <p>Free tier available</p>
+                <p>Continuous deployment from Git</p>
+                <a href="https://netlify.com" class="btn">Visit</a>
+            </div>
+            
+            <div class="platform">
+                <h3>Vercel</h3>
+                <p>Excellent for Next.js</p>
+                <p>Simple deployment</p>
+                <p>Automatic SSL</p>
+                <a href="https://vercel.com" class="btn">Visit</a>
+            </div>
+            
+            <div class="platform">
+                <h3>GitHub Pages</h3>
+                <p>Free hosting</p>
+                <p>Directly from GitHub repos</p>
+                <p>Perfect for portfolios</p>
+                <a href="https://pages.github.com" class="btn">Visit</a>
+            </div>
+            
+            <div class="platform">
+                <h3>Heroku</h3>
+                <p>For full-stack apps</p>
+                <p>Supports multiple languages</p>
+                <p>Free tier available</p>
+                <a href="https://heroku.com" class="btn">Visit</a>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Website Deployment Guide | For educational purposes</p>
+        </footer>
+    </div>
+</body>
+</html>
