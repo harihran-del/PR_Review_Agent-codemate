@@ -95,6 +95,14 @@ bash
 python app.py
 Open in browser
 
+![WhatsApp Image 2025-09-21 at 07 48 29_89dea48f](https://github.com/user-attachments/assets/bf7a3263-0621-4078-938d-b2362e924210)
+
+
+
+![WhatsApp Image 2025-09-21 at 07 48 29_9ba67059](https://github.com/user-attachments/assets/ebb5e54f-8d04-41cf-bac2-54972c164fcc)
+
+![WhatsApp Image 2025-09-21 at 07 48 30_1fd0ceea](https://github.com/user-attachments/assets/be521175-4632-4c78-9b1a-caf29ccd4957)
+
 text
 http://localhost:5000
 📋 Usage Guide
