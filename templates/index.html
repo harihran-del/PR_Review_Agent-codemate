@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PR Review Agent</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.2em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input[type="url"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .provider-badges {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .provider-badge {
+            background: #e9ecef;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .provider-badge.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        #result {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            margin-top: 25px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-style: italic;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .success {
+            border-left-color: #28a745;
+        }
+        
+        .error {
+            border-left-color: #dc3545;
+        }
+        
+        .review-header {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #eee;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            max-height: 500px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .review-meta {
+            background: #e9ecef;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .progress-steps {
+            margin: 15px 0;
+            padding: 0;
+            list-style: none;
+        }
+        
+        .progress-step {
+            padding: 10px;
+            margin: 8px 0;
+            background: #fff;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .step-complete {
+            border-left-color: #28a745;
+            background: #f8fff9;
+        }
+        
+        .step-error {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: flex-end;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            padding: 8px 16px;
+            border-radius: 6px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        /* Dashboard Styles */
+        
+        .dashboard-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 40px;
+            border-top: 3px solid #e9ecef;
+        }
+        
+        .dashboard-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            border: 1px solid #eee;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .dashboard-actions {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .review-item {
+            background: white;
+            padding: 18px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+        
+        .review-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .review-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .review-item-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        
+        .review-item-meta {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .score {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+            font-style: italic;
+            background: white;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+        }
+        /* Responsive Design */
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 20px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .review-meta {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🚀 AI Pull Request Review Agent</h1>
+        <div class="subtitle">
+            Professional code reviews for GitHub, GitLab, and Bitbucket
+        </div>
+
+        <div class="form-group">
+            <label for="pr_url">Enter a public Pull Request URL:</label>
+            <input type="url" id="pr_url" name="pr_url" placeholder="e.g., https://github.com/owner/repo/pull/123 or https://gitlab.com/owner/repo/-/merge_requests/456" required>
+
+            <div class="provider-badges">
+                <div class="provider-badge" id="badge-github">🐙 GitHub</div>
+                <div class="provider-badge" id="badge-gitlab">🦊 GitLab</div>
+                <div class="provider-badge" id="badge-bitbucket">🪣 Bitbucket</div>
+            </div>
+        </div>
+
+        <button type="submit" onclick="reviewPR()" id="review-btn">
+            <span id="btn-icon">🔍</span>
+            <span id="btn-text">Review PR</span>
+        </button>
+
+        <div id="progress" style="display: none;">
+            <h3>📊 Progress:</h3>
+            <ul class="progress-steps">
+                <li class="progress-step" id="step-1">📡 Detecting git provider...</li>
+                <li class="progress-step" id="step-2">📦 Fetching PR details...</li>
+                <li class="progress-step" id="step-3">🤖 Generating AI review...</li>
+                <li class="progress-step" id="step-4">✨ Processing results...</li>
+            </ul>
+        </div>
+
+        <div id="result"></div>
+
+        <!-- Dashboard Section -->
+        <div class="dashboard-section">
+            <h3>📊 Review Dashboard</h3>
+
+            <div class="stats-grid" id="dashboard-stats">
+                <div class="stat-card">
+                    <span class="stat-number">0</span>
+                    <span class="stat-label">Total Reviews</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">0</span>
+                    <span class="stat-label">Avg Score</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">0</span>
+                    <span class="stat-label">Suggestions</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">0</span>
+                    <span class="stat-label">Platforms</span>
+                </div>
+            </div>
+
+            <div class="dashboard-actions">
+                <button class="btn-secondary" onclick="exportHistory()">📤 Export History</button>
+                <button class="btn-secondary" onclick="clearHistory()">🗑️ Clear History</button>
+            </div>
+
+            <h4>📋 Recent Reviews</h4>
+            <div id="recent-reviews" class="reviews-list">
+                <div class="empty-state">No reviews yet. Analyze a PR to get started!</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let reviewHistory = JSON.parse(localStorage.getItem('reviewHistory')) || [];
+
+        function detectProvider(url) {
+            if (url.includes('github.com')) return 'github';
+            if (url.includes('gitlab.com')) return 'gitlab';
+            if (url.includes('bitbucket.org')) return 'bitbucket';
+            return 'unknown';
+        }
+
+        function updateProviderBadge(provider) {
+            document.querySelectorAll('.provider-badge').forEach(badge => {
+                badge.classList.remove('active');
+            });
+
+            const badge = document.getElementById(`badge-${provider}`);
+            if (badge) {
+                badge.classList.add('active');
+            }
+        }
+
+        function updateProgress(step, status, message = null) {
+            const stepElement = document.getElementById(`step-${step}`);
+            if (stepElement) {
+                if (message) {
+                    stepElement.innerHTML = `${status === 'complete' ? '✅' : '📌'} ${message}`;
+                }
+                stepElement.className = `progress-step ${status}`;
+            }
+        }
+
+        function extractScore(reviewText) {
+            const scoreMatch = reviewText.match(/SCORE:\s*(\d+)\/100/);
+            return scoreMatch ? parseInt(scoreMatch[1]) : null;
+        }
+
+        function analyzeReviewMetrics(reviewText) {
+            return {
+                word_count: reviewText.split(/\s+/).length,
+                suggestions_count: (reviewText.match(/SUGGESTION:/g) || []).length,
+                issues_count: (reviewText.match(/Potential Issues:/g) || []).length,
+                score: extractScore(reviewText)
+            };
+        }
+
+        function copyToClipboard() {
+            const reviewText = document.querySelector('pre') ? document.querySelector('pre').textContent : '';
+            if (reviewText) {
+                navigator.clipboard.writeText(reviewText);
+                alert('✅ Review copied to clipboard!');
+            }
+        }
+
+        function saveToHistory(prUrl, review, metadata) {
+            const reviewData = {
+                timestamp: new Date().toISOString(),
+                pr_url: prUrl,
+                review: review,
+                metadata: metadata,
+                metrics: analyzeReviewMetrics(review)
+            };
+
+            reviewHistory.unshift(reviewData);
+            reviewHistory = reviewHistory.slice(0, 10);
+            localStorage.setItem('reviewHistory', JSON.stringify(reviewHistory));
+            updateDashboard();
+        }
+
+        function updateButtonState(loading) {
+            const btn = document.getElementById('review-btn');
+            const btnIcon = document.getElementById('btn-icon');
+            const btnText = document.getElementById('btn-text');
+
+            if (loading) {
+                btn.disabled = true;
+                btnIcon.textContent = '⏳';
+                btnText.textContent = 'Processing...';
+            } else {
+                btn.disabled = false;
+                btnIcon.textContent = '🔍';
+                btnText.textContent = 'Review PR';
+            }
+        }
+
+        function updateDashboard() {
+            // Update stats
+            const totalReviews = reviewHistory.length;
+
+            // Calculate average score and total suggestions
+            let totalScore = 0;
+            let totalSuggestions = 0;
+            let scoreCount = 0;
+            const providers = new Set();
+
+            reviewHistory.forEach(review => {
+                // Calculate average score
+                if (review.metrics && review.metrics.score) {
+                    totalScore += review.metrics.score;
+                    scoreCount++;
+                }
+
+                // Calculate total suggestions
+                if (review.metrics && review.metrics.suggestions_count) {
+                    totalSuggestions += review.metrics.suggestions_count;
+                }
+
+                // Track providers
+                if (review.metadata && review.metadata.provider) {
+                    providers.add(review.metadata.provider);
+                }
+            });
+
+            const avgScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0;
+
+            document.getElementById('dashboard-stats').innerHTML = `
+                <div class="stat-card">
+                    <span class="stat-number">${totalReviews}</span>
+                    <span class="stat-label">Total Reviews</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">${avgScore}</span>
+                    <span class="stat-label">Avg Score</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">${totalSuggestions}</span>
+                    <span class="stat-label">Suggestions</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">${providers.size}</span>
+                    <span class="stat-label">Platforms</span>
+                </div>
+            `;
+
+            // Update recent reviews
+            const recentContainer = document.getElementById('recent-reviews');
+            if (reviewHistory.length === 0) {
+                recentContainer.innerHTML = '<div class="empty-state">No reviews yet. Analyze a PR to get started!</div>';
+                return;
+            }
+
+            recentContainer.innerHTML = reviewHistory.slice(0, 5).map(review => {
+                const provider = (review.metadata && review.metadata.provider) || 'unknown';
+                const title = (review.metadata && review.metadata.title) || review.pr_url;
+                const score = (review.metrics && review.metrics.score) || 'N/A';
+                const suggestions = (review.metrics && review.metrics.suggestions_count) || 0;
+                const files = (review.metadata && review.metadata.changed_files) || 0;
+
+                return `
+                <div class="review-item">
+                    <div class="review-item-header">
+                        <span class="provider-badge">${getProviderIcon(provider)} ${provider}</span>
+                        <span class="score">⭐ ${score}/100</span>
+                    </div>
+                    <div class="review-item-title" title="${title}">
+                        ${truncateText(title, 60)}
+                    </div>
+                    <div class="review-item-meta">
+                        <span>${new Date(review.timestamp).toLocaleDateString()}</span>
+                        <span>•</span>
+                        <span>${suggestions} suggestions</span>
+                        <span>•</span>
+                        <span>${files} files</span>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function getProviderIcon(provider) {
+            const icons = {
+                github: '🐙',
+                gitlab: '🦊',
+                bitbucket: '🪣'
+            };
+            return icons[provider] || '📁';
+        }
+
+        function truncateText(text, length) {
+            return text.length > length ? text.substring(0, length) + '...' : text;
+        }
+
+        function exportHistory() {
+            const data = JSON.stringify(reviewHistory, null, 2);
+            const blob = new Blob([data], {
+                type: 'application/json'
+            });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pr-reviews-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all review history?')) {
+                reviewHistory = [];
+                localStorage.setItem('reviewHistory', JSON.stringify(reviewHistory));
+                updateDashboard();
+            }
+        }
+
+        function reviewPR() {
+            const prUrl = document.getElementById('pr_url').value;
+            const resultDiv = document.getElementById('result');
+            const progressDiv = document.getElementById('progress');
+
+            if (!prUrl) {
+                resultDiv.innerHTML = '<div class="error">❌ Please enter a valid PR URL</div>';
+                return;
+            }
+
+            const provider = detectProvider(prUrl);
+            if (provider === 'unknown') {
+                resultDiv.innerHTML = '<div class="error">❌ Unsupported git provider. Please use GitHub, GitLab, or Bitbucket.</div>';
+                return;
+            }
+
+            updateProviderBadge(provider);
+            resultDiv.innerHTML = '';
+            progressDiv.style.display = 'block';
+            updateButtonState(true);
+
+            for (let i = 1; i <= 4; i++) {
+                updateProgress(i, '', '');
+            }
+
+            updateProgress(1, 'complete', '📡 Detected ' + provider);
+
+            const formData = new FormData();
+            formData.append('pr_url', prUrl);
+
+            setTimeout(() => updateProgress(2, 'complete', '📦 Fetched PR details'), 1000);
+
+            fetch('/review', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    updateProgress(3, 'complete', '🤖 Generated AI review');
+
+                    if (data.success) {
+                        updateProgress(4, 'complete', '✨ Results ready');
+
+                        const metrics = analyzeReviewMetrics(data.review);
+                        const reviewWithMeta = `
+<div class="review-meta">
+    <div class="meta-item">📦 <strong>Provider:</strong> ${data.provider || 'github'}</div>
+    <div class="meta-item">📊 <strong>Files:</strong> ${data.changed_files || 'N/A'}</div>
+    <div class="meta-item">⭐ <strong>Score:</strong> ${metrics.score || 'N/A'}/100</div>
+    <div class="meta-item">💡 <strong>Suggestions:</strong> ${metrics.suggestions_count}</div>
+</div>
+${data.review}
+                    `.trim();
+
+                        resultDiv.innerHTML = `
+                        <div class="success">
+                            <div class="review-header">
+                                <span>✅ Review Complete!</span>
+                                <div class="action-buttons">
+                                    <button class="btn-secondary" onclick="copyToClipboard()">📋 Copy</button>
+                                </div>
+                            </div>
+                            <pre>${reviewWithMeta}</pre>
+                        </div>
+                    `;
+
+                        saveToHistory(prUrl, data.review, {
+                            provider: data.provider,
+                            title: data.title,
+                            changed_files: data.changed_files
+                        });
+
+                    } else {
+                        updateProgress(4, 'error', '❌ Review failed');
+                        resultDiv.innerHTML = `<div class="error">❌ Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    updateProgress(4, 'error', '❌ Network error');
+                    resultDiv.innerHTML = `<div class="error">❌ Network Error: ${error.message}</div>`;
+                })
+                .finally(() => {
+                    updateButtonState(false);
+                });
+        }
+
+        // Event listeners
+        document.getElementById('pr_url').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') reviewPR();
+        });
+
+        document.getElementById('pr_url').addEventListener('input', function(e) {
+            const url = e.target.value;
+            if (url) updateProviderBadge(detectProvider(url));
+        });
+
+        // Initialize
+        console.log('PR Review Agent loaded. Supported providers: GitHub, GitLab, Bitbucket');
+        updateDashboard();
+    </script>
+</body>
+
+</html>
